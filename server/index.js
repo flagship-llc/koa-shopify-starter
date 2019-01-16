@@ -1,4 +1,5 @@
 import dotenv from "dotenv";
+dotenv.config();
 import Koa from "koa";
 var serve = require("koa-static");
 import mount from "koa-mount";
@@ -14,14 +15,63 @@ import proxy from "@shopify/koa-shopify-graphql-proxy";
 const ShopifyAPIClient = require("shopify-api-node");
 import webhookVerification from "../middleware/webhookVerification";
 import appProxy from "../middleware/appProxy";
-dotenv.config();
-
 const {
   SHOPIFY_SECRET,
   SHOPIFY_API_KEY,
   SHOPIFY_APP_HOST,
-  NODE_ENV,
+  DATABASE_USER,
+  DATABASE_PW,
+  NODE_ENV
 } = process.env;
+var mongoose = require('mongoose');
+console.log("username", DATABASE_USER)
+console.log("password", DATABASE_PW)
+mongoose.connect(`mongodb://${DATABASE_USER}:${DATABASE_PW}@ds157544.mlab.com:57544/vip`);
+var db = mongoose.connection;
+db.on('error', console.error.bind(console, 'connection error:'));
+db.once('open', function() {
+  // we're connected!
+  console.log("connected to database")
+});
+var vipStoreSchema = new mongoose.Schema({
+  id: Number,
+  in_store_vip_number: Number,
+  used_online: Boolean,
+  // store_obj: Schema.Types.Mixed,
+});
+
+// start example
+
+var kittySchema = new mongoose.Schema({
+  name: String,
+});
+
+kittySchema.methods.speak = function () {
+  var greeting = this.name
+    ? "Meow name is " + this.name
+    : "I don't have a name";
+  console.log(greeting);
+}
+
+var Kitten = mongoose.model('Kitten', kittySchema);
+
+var fluffy = new Kitten({ name: 'fluffy' });
+fluffy.speak(); // "Meow name is fluffy"
+
+fluffy.save(function (err, fluffy) {
+  if (err) return console.error(err);
+  fluffy.speak();
+});
+
+Kitten.find(function (err, kittens) {
+  if (err) return console.error(err);
+  console.log(kittens);
+})
+
+// end example
+
+
+
 
 //todo: add any database you want.
 
