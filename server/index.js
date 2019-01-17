@@ -129,6 +129,12 @@ app.use(
       "write_themes",
       "read_script_tags",
       "write_script_tags",
+      "read_customers",
+      "write_customers",
+      "read_orders",
+      "read_all_orders",
+      "read_checkouts",
+      "write_checkouts"
     ],
     afterAuth(ctx) {
       const {shop, accessToken} = ctx.session;
