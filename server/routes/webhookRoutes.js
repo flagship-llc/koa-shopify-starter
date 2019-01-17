@@ -20,6 +20,11 @@ module.exports = (router) => {
       console.log("Body:", ctx.request.body);
       ctx.response.status = 200;
     })
+    .post("/webhooks/orders/fulfilled", (ctx, next) => {
+      console.log("We got a webhook!");
+      console.log("Body:", ctx.request.body);
+      ctx.response.status = 200;
+    })
     .post("/webhooks/themes/delete", (ctx, next) => {
       console.log("We got a webhook!");
       console.log("Body:", ctx.request.body);

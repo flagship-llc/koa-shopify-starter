@@ -33,12 +33,32 @@ db.once('open', function() {
   // we're connected!
   console.log("connected to database")
 });
-var vipStoreSchema = new mongoose.Schema({
-  id: Number,
-  in_store_vip_number: Number,
-  used_online: Boolean,
-  // store_obj: Schema.Types.Mixed,
+
+
+const validateWebhook = require('./webhooks');
+
+
+// group B
+var vipStoreSchemaB = new mongoose.Schema({
+  vip_number: String,
+  customer_email: String
 });
+
+// watch checkouts -> order fulfilled webhook
+
+
+
+// if total cost of all items purchased over 500HKD
+// generate new VIP number
+// get customer email
+// put new generated VIP number and customer email in the database 
+// tag that customer as VIP
+
+
+
+// function to populate in_store_vip_number on upload 
+
+// 
 
 // start example
 
@@ -137,6 +157,8 @@ if (isDev) {
   const staticPath = path.resolve(__dirname, "../");
   app.use(mount("/", serve(staticPath)));
 }
+
+router.post('/webhooks/products/create', validateWebhook);
 
 router.get("/install", (ctx) => ctx.render("install"));
 router.use(["/api"], verifyRequest()); //all requests with /api must be verified.
