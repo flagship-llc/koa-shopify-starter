@@ -12,27 +12,47 @@ module.exports = {
         headers: { 'X-Shopify-Access-Token': accessToken }
       };
       let totalSpent = 0
+      // test customer from the manual webhook trigger
+      // only for testing, prod replace with customer.id
+      const customer_id = '1000994996324' 
       
       if (!customer.tags.includes("VIP")) { // if customer is not VIP
         // get all orders of this customer
-        const URL = `https://${shop}/admin/orders.json`
-        axios.get(URL, axiosConfig)
+        const getURL = `https://${shop}/admin/customers/${customer_id}/orders.json`
+        axios.get(getURL, axiosConfig)
         .then( (response) => { 
-          let allOrders = response.data.orders
-          // console.log(allOrders)
-          // filter orders by email to get all orders made by one customer
-          let customerOrders = allOrders.filter(order => order.email === customer.email)
-          console.log(customerOrders.length)
+          let customerOrders = response.data.orders
+          // console.log(customerOrders)
           for (let i = 0; i < customerOrders.length; i++) {
-            console.log(customerOrders[i])
-            totalSpent += Number(customerOrders[i].total_line_items_price_set.shop_money.amount)
+            // console.log(customerOrders[i])
+            totalSpent += Number(customerOrders[i].total_line_items_price_set.shop_money.amount) - Number(customerOrders[i].total_discounts_set.shop_money.amount)
             console.log(totalSpent)
-
           }
-        }).catch( (error) => {
-          console.log(error)
-        });
+          // change to 5000 for prod
+          if (totalSpent > 5) { // tag the customer as VIP
+            console.log("total spent")
+            const customerVIP = {
+              "customer": {
+                "id": customer_id,
+                "tags": "VIP"
+              }
+            }
+            axios({
+              method: 'put',
+              url: `https://${shop}/admin/customers/${customer_id}.json`,
+              data: customerVIP,
+              headers: { 'X-Shopify-Access-Token': accessToken }
+            }).then(function (message) {
+              console.log("customer tagged as VIP"); // send email
+            }).catch(function (message) {
+              console.log("Error:", message);
+            });
+          }
+          }).catch( (error) => {
+            console.log(error)
+          });
         
+
       }
 
     // if total cost of all items purchased over 500HKD
