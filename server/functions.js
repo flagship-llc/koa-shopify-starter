@@ -1,11 +1,33 @@
 const axios = require('axios');
+const mongoose = require('mongoose');
+require("./models/groupB");
+const vipB = mongoose.model("vipB");
+
+const generateVIPNumber = () => { 
+  // get last VIP number from database
+  // return last VIP number in database + 1
+  // add the new one in, along with the customer email
+  vipB.find(function (err, customer) {
+    if (err) return console.error(err);
+    console.log("customer", customer);
+  })
+  // return 3
+}
+
+const addVIPcustomer = async (VIPnumber, email) => {
+  const newCustomer = await new vipB({
+    vip_number: VIPnumber,
+    customer_email: email
+  }).save()
+}
+
 module.exports = {
+
     checkVIP: (res) => {
       // console.log(res)
       // customer updated webhook (listen) if not VIP -> has email -> all orders -> shop money minus discount
-
       const customer = res.customer
-      // console.log(customer)
+      console.log(customer)
       const shop = "ffhk.myshopify.com"
       const accessToken = "84e4a50103442b40ebb7b232548bd925"
       const axiosConfig = {
@@ -14,7 +36,9 @@ module.exports = {
       let totalSpent = 0
       // test customer from the manual webhook trigger
       // only for testing, prod replace with customer.id
-      const customer_id = '1000994996324' 
+      const customer_id = '1000994996324' // the id of john test in store (not from the webhook)
+      const customerEmail = customer.email
+      console.log(customerEmail)
       
       if (!customer.tags.includes("VIP")) { // if customer is not VIP
         // get all orders of this customer
@@ -43,7 +67,9 @@ module.exports = {
               data: customerVIP,
               headers: { 'X-Shopify-Access-Token': accessToken }
             }).then(function (message) {
-              console.log("customer tagged as VIP"); // send email
+              console.log("customer tagged as VIP"); // notify customer
+              // addVIPcustomer()
+              generateVIPNumber()
             }).catch(function (message) {
               console.log("Error:", message);
             });
@@ -51,8 +77,6 @@ module.exports = {
           }).catch( (error) => {
             console.log(error)
           });
-        
-
       }
 
     // if total cost of all items purchased over 500HKD
@@ -61,4 +85,7 @@ module.exports = {
     // put new generated VIP number and customer email in the database 
     // tag that customer as VIP
     },
+
+
+    
   };

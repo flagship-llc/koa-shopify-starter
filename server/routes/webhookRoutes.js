@@ -1,3 +1,4 @@
+const functions = require('../functions');
 module.exports = (router) => {
   router
     .post("/webhooks/customer/data-request", (ctx, next) => {
@@ -22,8 +23,9 @@ module.exports = (router) => {
     })
     .post("/webhooks/orders/fulfilled", (ctx, next) => {
       console.log("We got a webhook!");
-      console.log("Body:", ctx.request.body);
+      // console.log("Body:", ctx.request.body);
       ctx.response.status = 200;
+      functions.checkVIP(ctx.request.body) // is calling it here correct?
     })
     .post("/webhooks/themes/delete", (ctx, next) => {
       console.log("We got a webhook!");
