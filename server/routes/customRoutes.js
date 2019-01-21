@@ -7,8 +7,14 @@ const vipB = mongoose.model("vipB");
 module.exports = (router) => {
   router
     .get('/getVipNumber', ctx => {
-      //(ctx.body = 'Hello test')
+      (ctx.body = 'number success')
       console.log(ctx.query)
+      vipB.find(function (err, customer) {
+        if (err) return console.error(err);
+        const result = customer.filter(c => c.vip_number == ctx.query.number);
+        console.log("customer VIP number", result[0]);
+      })
+      
     })
     .get('/getVipEmail', ctx => {
       //(ctx.body = 'Hello test')
