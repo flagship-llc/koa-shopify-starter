@@ -7,35 +7,26 @@ const vipB = mongoose.model("vipB");
 module.exports = (router) => {
   router
     .get('/getVipNumber', ctx => {
-      (ctx.body = 'number success')
       console.log(ctx.query)
       vipB.find(function (err, customer) {
         if (err) return console.error(err);
         const result = customer.filter(c => c.vip_number == ctx.query.number);
         console.log("customer VIP number", result[0]);
+        if (!result[0] === undefined) {
+          ctx.body = {"success":"1"}
+        } else {
+          ctx.body = {"failure":"0"}
+        }
+        
       })
-      
+
     })
     .get('/getVipEmail', ctx => {
-      //(ctx.body = 'Hello test')
-      console.log(ctx.query)
+      (ctx.body = 'Hello test')
+      ctx.set('Access-Control-Allow-Origin', '*')
+      // console.log(ctx.query)
     })
-    .get("/getVipNumber/:shop", async (ctx, next) => {
-      // https://51bf1977.ngrok.io/api/getVipNumber/ffhk.myshopify.com/1
-      // vipB.find(function (err, customer) {
-      //   if (err) return console.error(err);
-      //   console.log("customer database", customer);
-      //   console.log(ctx.params);
-      //   // const result = customer.filter(c => c.vip_number == ?);
-      // })
-      console.log("get response")
-      // const {shop, accessToken} = ctx.session;
-      // const shopify = new ShopifyAPIClient({
-      //   shopName: shop,
-      //   accessToken: accessToken,
-      // });
-      // console.log(shop)
-    })
+    // post request for the VIP number file upload
     .get("/api/hello", (ctx, next) => {
       const {views, shop} = ctx.session;
       var n = views || 0;
