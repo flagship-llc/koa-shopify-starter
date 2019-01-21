@@ -1,7 +1,35 @@
 const ShopifyAPIClient = require("shopify-api-node");
+const axios = require('axios');
+const mongoose = require('mongoose');
+require("../models/groupB");
+const vipB = mongoose.model("vipB");
 
 module.exports = (router) => {
   router
+    .get('/getVipNumber', ctx => {
+      //(ctx.body = 'Hello test')
+      console.log(ctx.query)
+    })
+    .get('/getVipEmail', ctx => {
+      //(ctx.body = 'Hello test')
+      console.log(ctx.query)
+    })
+    .get("/getVipNumber/:shop", async (ctx, next) => {
+      // https://51bf1977.ngrok.io/api/getVipNumber/ffhk.myshopify.com/1
+      // vipB.find(function (err, customer) {
+      //   if (err) return console.error(err);
+      //   console.log("customer database", customer);
+      //   console.log(ctx.params);
+      //   // const result = customer.filter(c => c.vip_number == ?);
+      // })
+      console.log("get response")
+      // const {shop, accessToken} = ctx.session;
+      // const shopify = new ShopifyAPIClient({
+      //   shopName: shop,
+      //   accessToken: accessToken,
+      // });
+      // console.log(shop)
+    })
     .get("/api/hello", (ctx, next) => {
       const {views, shop} = ctx.session;
       var n = views || 0;
