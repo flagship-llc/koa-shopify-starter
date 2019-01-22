@@ -4,27 +4,19 @@ const mongoose = require('mongoose');
 require("../models/groupB");
 const vipB = mongoose.model("vipB");
 
+// validate number and email on server
+
 module.exports = (router) => {
   router
-    .get('/getVipNumber', ctx => {
-      console.log(ctx.query)
-      vipB.find(function (err, customer) {
-        if (err) return console.error(err);
-        const result = customer.filter(c => c.vip_number == ctx.query.number);
-        console.log("customer VIP number", result[0]);
-        if (!result[0] === undefined) {
-          ctx.body = {"success":"1"}
-        } else {
-          ctx.body = {"failure":"0"}
-        }
-        
-      })
-
-    })
-    .get('/getVipEmail', ctx => {
-      (ctx.body = 'Hello test')
+    .get('/getVipNumber', async ctx => {
+      const customerObj = await vipB.findOne({'vip_number': ctx.query.number})  
+      customerObj !== null ? ctx.response.status = 202 : ctx.response.status = 418
       ctx.set('Access-Control-Allow-Origin', '*')
-      // console.log(ctx.query)
+    })
+    .get('/getVipEmail', async ctx => {
+      const customerObj = await vipB.findOne({'customer_email': ctx.query.email})  
+      customerObj !== null ? ctx.response.status = 202 : ctx.response.status = 418
+      ctx.set('Access-Control-Allow-Origin', '*')
     })
     // post request for the VIP number file upload
     .get("/api/hello", (ctx, next) => {
