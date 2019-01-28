@@ -6,6 +6,9 @@ const vipB = mongoose.model("vipB");
 
 // validate number and email on server
 
+// need to make get route with VIP number parameter for group A database
+// need to make post route to populate database with csv file from front end upload (file streaming)
+
 module.exports = (router) => {
   router
     .get('/getVipNumber', async ctx => {

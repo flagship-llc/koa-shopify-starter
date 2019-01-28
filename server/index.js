@@ -15,6 +15,7 @@ import proxy from "@shopify/koa-shopify-graphql-proxy";
 const ShopifyAPIClient = require("shopify-api-node");
 import webhookVerification from "../middleware/webhookVerification";
 import appProxy from "../middleware/appProxy";
+const functions = require('./functions');
 const {
   SHOPIFY_SECRET,
   SHOPIFY_API_KEY,
@@ -37,23 +38,11 @@ db.once('open', function() {
 
 const validateWebhook = require('./webhooks');
 
-
-// group B
-var vipStoreSchemaB = new mongoose.Schema({
-  vip_number: String,
-  customer_email: String
-});
-
-// watch checkouts -> order fulfilled webhook
-
-
-
 // if total cost of all items purchased over 500HKD
 // generate new VIP number
 // get customer email
 // put new generated VIP number and customer email in the database 
 // tag that customer as VIP
-
 
 
 // function to populate in_store_vip_number on upload 
@@ -85,7 +74,7 @@ fluffy.save(function (err, fluffy) {
 
 Kitten.find(function (err, kittens) {
   if (err) return console.error(err);
-  console.log(kittens);
+  // console.log(kittens);
 })
 
 // end example
@@ -148,6 +137,7 @@ app.use(
         address: `${SHOPIFY_APP_HOST}/webhooks/themes/delete`,
         format: "json",
       });
+      console.log("after auth")
       ctx.redirect("/");
     },
   }),
@@ -167,17 +157,17 @@ if (isDev) {
 router.post('/webhooks/products/create', validateWebhook);
 
 router.get("/install", (ctx) => ctx.render("install"));
-router.use(["/api"], verifyRequest()); //all requests with /api must be verified.
+// router.use(["/api"], verifyRequest()); //all requests with /api must be verified.
 router.use(["/webhooks"], webhookVerification); //webhook skips verifyRequest but verified with hmac
 require("./routes/webhookRoutes")(router);
 require("./routes/customRoutes")(router);
 
 app.use(router.routes()).use(router.allowedMethods());
-app.use(
-  verifyRequest({
-    fallbackRoute: "/install",
-  }),
-);
+// app.use(
+//   verifyRequest({
+//     fallbackRoute: "/install",
+//   }),
+// );
 app.use(proxy());
 app.use(async (ctx, next) => {
   await next();
@@ -188,5 +178,11 @@ app.use(async (ctx, next) => {
       shop: ctx.session.shop,
     });
   }
+});
+app.use(async (ctx, next) => {
+  ctx.set('Access-Control-Allow-Origin', '*');
+  ctx.set('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+  ctx.set('Access-Control-Allow-Methods', 'POST, GET, PUT, DELETE, OPTIONS');
+  await next();
 });
 export default app;

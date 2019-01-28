@@ -3,39 +3,49 @@ const mongoose = require('mongoose');
 require("./models/groupB");
 const vipB = mongoose.model("vipB");
 
-/*
-
-        {
-            "id": 5779025297508,
-            "namespace": "global",
-            "key": "vip_nuer",
-            "value": 100,
-            "value_type": "integer",
-            "description": null,
-            "owner_id": 1000994996324,
-            "created_at": "2019-01-24T11:53:18-05:00",
-            "updated_at": "2019-01-24T11:53:18-05:00",
-            "owner_resource": "customer",
-            "admin_graphql_api_id": "gid://shopify/Metafield/5779025297508"
-        },
-
-*/
-
-// remember, to update a customer metafield you need to delete what is already there
-
 // maybe it has to be a post if no metafields exit 
 
 // metaKey (either vip_number or total_spent)
 
-const deleteMetafield = (id, customer_id, shop) => {
+const deleteUpdateMetafield = async (id, customer_id, shop, totalSpent) => { // needs to be delete and update
   const deleteURL = `https://${shop}/admin/customers/${customer_id}/metafields/${id}.json`
-  axios({ // need to wait so it deletes first
+  await axios({ // need to wait so it deletes first
     method: 'DELETE',
     url: deleteURL,
     headers: {'X-Shopify-Access-Token': "84e4a50103442b40ebb7b232548bd925"}
   })
-  .then(message => console.log(message))
+  .then((message) => {
+    // put request to add metafield 
+    console.log(message)
+    const metafieldData = {
+      "customer": {
+          "id": customer_id,
+          "metafields": [
+            {
+              "key": "total_spent",
+              "value": totalSpent,
+              "value_type": "integer",
+              "namespace": "global"
+            }
+          ]
+        }
+      }
+    // check if metafield exists 
+    axios.put(
+      `https://${shop}/admin/customers/${customer_id}.json`,
+      metafieldData,
+      {
+        headers: {
+        'X-Shopify-Access-Token': "84e4a50103442b40ebb7b232548bd925",
+        'Content-Type': 'application/json'
+        }
+      }
+    ).then(response => console.log(response))
+    .catch(err => console.log(err))
+  })
   .catch(err => console.log(err))
+
+
 }
 
 
@@ -62,7 +72,7 @@ const updateMetafieldTotalSpent = async (totalSpent, customer_id, shop) => {
   }
   axios.get(URL, config)
   .then(async function (response) {
-    console.log(response.data.metafields)
+    console.log("metafields", response.data.metafields)
     const metafields = response.data.metafields
     // a customer can have two metafields 
     // look at all metafields and see if they have "vip_number" or "total_spent" 
@@ -71,14 +81,17 @@ const updateMetafieldTotalSpent = async (totalSpent, customer_id, shop) => {
     if (metafields.length !== 0) { // if there is a metafield need to delete it
       // if totalSpent function, then not VIP so don't need to worry about multiple metafields to delete
       const metafieldFilter = metafields.filter(customer => customer.key === "total_spent")
-      const idToDelete = metafieldFilter.id
+      console.log("metaFieldfilter", metafieldFilter)
+      const idToDelete = metafieldFilter[0].id
       // this is undefined if it is then don't need to delete 
       console.log("id to delete", idToDelete)
-      // delete metafield 
-      if (idToDelete !== undefined) {
-        deleteMetafield(idToDelete, customer_id, shop)
-      } else {
-        // put request to add metafield 
+      if (idToDelete !== undefined) { // if there is no metafield to delete
+        console.log("deleteUpdateMetafield")
+        deleteUpdateMetafield(idToDelete, customer_id, shop, totalSpent)
+      } 
+    } else {
+        // no metafield exists yet 
+        console.log("metafield length is 0")
         const metafieldData = {
           "customer": {
               "id": customer_id,
@@ -104,9 +117,6 @@ const updateMetafieldTotalSpent = async (totalSpent, customer_id, shop) => {
           }
         ).then(response => console.log(response))
         .catch(err => console.log(err))
-      }
-      
-
     }
   })
   .catch(err => {
@@ -186,8 +196,8 @@ module.exports = {
       let totalSpent = 0
       // test customer from the manual webhook trigger
       // only for testing, prod replace with customer.id
-      const customer_id = '1000994996324' // the id of john test in store (not from the webhook)
-      const customerEmail = customer.email
+      const customer_id = '1084779724900' // the id of john test in store (not from the webhook)
+      const customerEmail = customer.email // email from the webhook
       console.log(customerEmail)
       
       // the webhook test still triggers this because CUSTOMER is from the webhook so the VIP doesn't exist 
@@ -206,7 +216,7 @@ module.exports = {
             console.log(totalSpent)
           }
           // change to 5000 for prod
-          if (totalSpent > 500000000) { // tag the customer as VIP
+          if (totalSpent > -1) { // tag the customer as VIP
             console.log("total spent")
             const customerVIP = {
               "customer": {
