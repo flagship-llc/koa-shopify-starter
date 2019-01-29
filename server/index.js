@@ -16,6 +16,7 @@ const ShopifyAPIClient = require("shopify-api-node");
 import webhookVerification from "../middleware/webhookVerification";
 import appProxy from "../middleware/appProxy";
 const functions = require('./functions');
+var formidable = require('koa2-formidable'); 
 const {
   SHOPIFY_SECRET,
   SHOPIFY_API_KEY,
@@ -107,6 +108,7 @@ app.use(views(path.join(__dirname, "views"), {extension: "ejs"}));
 app.keys = [SHOPIFY_SECRET];
 app.use(session(app));
 app.use(bodyParser());
+app.use (formidable ({}))
 const router = Router();
 app.use(
   shopifyAuth({
