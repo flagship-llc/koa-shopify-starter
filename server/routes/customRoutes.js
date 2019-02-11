@@ -14,6 +14,11 @@ require("../models/groupA");
 const vipB = mongoose.model("vipB");
 const vipA = mongoose.model("vipA");
 const csv = require('csvtojson')
+const functions = require('../functions');
+const bcrypt = require('bcrypt');
+const saltRounds = 10;
+// const myPlaintextPassword = 's0/\/\P4$$w0rD';
+const someOtherPlaintextPassword = 'not_bacon';
 
 // validate number and email on server
 
@@ -32,16 +37,50 @@ module.exports = (router) => {
       customerObj !== null ? ctx.response.status = 202 : ctx.response.status = 418
       ctx.set('Access-Control-Allow-Origin', '*')
     })
-    .post('/checkVipNumber', async ctx => {
-      // ctx.request.body is post params
-      // send with post body {vip_number: myNumber}
-      const customerObj = await vipA.findOne({'in_store_vip_number': ctx.request.body.vip_number})
-      console.log(ctx.request.body.vip_number)
-      console.log(customerObj)
-      // if found and bool is false -> return true 
-      // if found and bool is true -> return false
-      // if not found -> return false
+    // .post('/checkVipNumber', async (ctx, next) => { 
+    //   // ctx.request.body is post params
+    //   // send with post body {vip_number: myNu mber}
+    //   // const customerObj = await vipA.findOne({'in_store_vip_number': ctx.request.body.vip_number})
+    //   //  console.log(ctx.request.body.vip_number)
+    //   console.log(ctx.request)
+    //   ctx.response.status = 200
+    //   ctx.set('Access-Control-Allow-Origin', '*')
+    //   ctx.redirect('http://localhost:3006/');
+    //   // const customerObj = await vipA.findOne({'in_store_vip_number': ctx.query.number}) 
+    //   // console.log(customerObj)  
+    //   // if found and bool is false -> return true 
+    //   // if found and bool is true -> return false
+    //   // if not found -> return false
+    //   // try {
+    //   //   const movie = await queries.addMovie(ctx.request.body);
+    //   //   if (movie.length) {
+    //   //     ctx.status = 201;
+    //   //     ctx.body = {
+    //   //       status: 'success',
+    //   //       data: movie
+    //   //     };
+    //   //   } else {
+    //   //     ctx.status = 400;
+    //   //     ctx.body = {
+    //   //       status: 'error',
+    //   //       message: 'Something went wrong.'
+    //   //     };
+    //   //   }
+    //   // } catch (err) {
+    //   //   console.log(err)
+    //   // }
+    //   // ctx.set('Access-Control-Allow-Origin', '*')
+      
+    // })
+    .get('/checkVipNumber', async ctx => {
+      // console.log(ctx.request)
+      const customerObj = await vipA.findOne({'in_store_vip_number': ctx.query.number})  
+      customerObj !== null ? ctx.response.status = 202 : ctx.response.status = 418
       ctx.set('Access-Control-Allow-Origin', '*')
+      // ctx.response.status = 200
+      // ctx.set('Access-Control-Allow-Origin', '*')
+      // return next()
+      // ctx.body = {"test":1}
     })
     .post('/upload', async ctx => {
       console.log(ctx.request)
@@ -51,22 +90,35 @@ module.exports = (router) => {
       reader.pipe(stream);
       console.log('uploading %s -> %s', file.name, stream.path);
       // use the path to go from csv to json and then import to database
-      csv()
-      .fromFile(stream.path)
-      .then( async (jsonObj) => {
-        console.log(jsonObj);
-        // iterate and save in database
-        jsonObj.forEach(async element => {
-          let newVipNumber = await new vipA({
-            vip_number: element.in_store_vip_number,
-            used_online: element.used_online
-          }).save()
-          console.log(newVipNumber)
-        });
+      const jsonArray = await csv().fromFile(stream.path);
+      console.log("jsonArray", jsonArray)
+      jsonArray.forEach(async element => {
+        console.log(element.in_store_vip_number)
+        await functions.saveSchemaA(element.in_store_vip_number)
+      });
+      // csv()
+      // .then( async (jsonObj) => {
+      //   console.log(jsonObj);
+      //   // iterate and save in database
+      //   jsonArray.forEach(async element => {
+      //     console.log(element.in_store_vip_number)
+      //     let newVipNumber = await new vipA({
+      //       vip_number: element.in_store_vip_number,
+      //       used_online: false
+      //     }).save()
+      //     console.log(newVipNumber)
+      //   });
 
-      })
+      // })
       ctx.set('Access-Control-Allow-Origin', '*')
       ctx.redirect('http://localhost:3006/');
+    })
+    .get('/login', async ctx => {
+      console.log("username", ctx.query.username)
+      console.log("passowrd", ctx.query.password)
+      let myHash = await bcrypt.hash("test", saltRounds)
+      const match = await bcrypt.compare(ctx.query.password, myHash);
+      match ? ctx.response.status = 202 : ctx.response.status = 418
     })
     // post request for the VIP number file upload
     .get("/api/hello", (ctx, next) => {
