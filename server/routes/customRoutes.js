@@ -76,7 +76,9 @@ module.exports = (router) => {
       // console.log(ctx.request)
       const customerObj = await vipA.findOne({'in_store_vip_number': ctx.query.number})  
       customerObj !== null ? ctx.response.status = 202 : ctx.response.status = 418
+      await functions.updateUsedOnline(ctx.query.number)
       ctx.set('Access-Control-Allow-Origin', '*')
+      // need to set used_online to be true
       // ctx.response.status = 200
       // ctx.set('Access-Control-Allow-Origin', '*')
       // return next()
@@ -113,10 +115,10 @@ module.exports = (router) => {
       ctx.set('Access-Control-Allow-Origin', '*')
       ctx.redirect('http://localhost:3006/');
     })
-    .get('/login', async ctx => {
+    .get('/login', async ctx => { // only uses password 
       console.log("username", ctx.query.username)
       console.log("passowrd", ctx.query.password)
-      let myHash = await bcrypt.hash("test", saltRounds)
+      let myHash = await bcrypt.hash("test", saltRounds) // could store the hash if 1 password
       const match = await bcrypt.compare(ctx.query.password, myHash);
       match ? ctx.response.status = 202 : ctx.response.status = 418
     })

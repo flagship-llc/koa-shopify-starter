@@ -6,11 +6,13 @@ import mount from "koa-mount";
 import views from "koa-views";
 import path from "path";
 import session from "koa-session";
+const cors = require('@koa/cors');
 import koaWebpack from "koa-webpack";
 import bodyParser from "koa-bodyparser";
 import Router from "koa-router";
 import shopifyAuth, {verifyRequest} from "@shopify/koa-shopify-auth";
 import webpack from "webpack";
+const auth = require('koa-basic-auth');
 import proxy from "@shopify/koa-shopify-graphql-proxy";
 const ShopifyAPIClient = require("shopify-api-node");
 import webhookVerification from "../middleware/webhookVerification";
@@ -28,7 +30,8 @@ const {
 var mongoose = require('mongoose');
 console.log("username", DATABASE_USER)
 console.log("password", DATABASE_PW)
-mongoose.connect(`mongodb://${DATABASE_USER}:${DATABASE_PW}@ds157544.mlab.com:57544/vip`);
+const options = {useFindAndModify: false}
+mongoose.connect(`mongodb://${DATABASE_USER}:${DATABASE_PW}@ds157544.mlab.com:57544/vip`, options);
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function() {
@@ -103,6 +106,7 @@ const registerWebhook = function(shopDomain, accessToken, webhook) {
     );
 };
 const app = new Koa();
+app.use(cors());
 const isDev = NODE_ENV !== "production";
 app.use(views(path.join(__dirname, "views"), {extension: "ejs"}));
 app.keys = [SHOPIFY_SECRET];
@@ -187,4 +191,28 @@ app.use(async (ctx, next) => {
   ctx.set('Access-Control-Allow-Methods', 'POST, GET, PUT, DELETE, OPTIONS');
   await next();
 });
+
+// custom 401 handling
+app.use(async (ctx, next) => {
+  try {
+    await next();
+  } catch (err) {
+    if (401 == err.status) {
+      ctx.status = 401;
+      ctx.set('WWW-Authenticate', 'Basic');
+      ctx.body = 'cant haz that';
+    } else {
+      throw err;
+    }
+  }
+});
+
+// require auth
+app.use(auth({ name: 'test', pass: 'test' }));
+
+// secret response
+app.use(async (ctx) => {
+  ctx.body = 'secret';
+});
+
 export default app;

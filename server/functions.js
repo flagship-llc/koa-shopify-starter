@@ -1,7 +1,10 @@
 const axios = require('axios');
 const mongoose = require('mongoose');
 require("./models/groupB");
+require("./models/groupA");
 const vipB = mongoose.model("vipB");
+const vipA = mongoose.model("vipA");
+
 
 // maybe it has to be a post if no metafields exit 
 
@@ -250,6 +253,25 @@ module.exports = {
     // put new generated VIP number and customer email in the database 
     // tag that customer as VIP
     },
+
+    saveSchemaA: async (vip_number) => {
+      let newVipNumber = await new vipA({
+        in_store_vip_number: vip_number,
+        used_online: false
+      }).save()
+      console.log("newVipNumber", newVipNumber)
+    },
+
+    updateUsedOnline: async (vip_number) => {
+      // find in vipA that number
+      const query = {'in_store_vip_number': vip_number}
+      const customerObj = await vipA.findOneAndUpdate(query, {'used_online': true})
+      console.log(customerObj)
+      //const oldBool = customerObj.used_online
+
+      // get number or id and get old boolean
+      // update the used online to the opposite of whatever it is 
+    }
 
 
     
