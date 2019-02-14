@@ -153,7 +153,7 @@ if (isDev) {
 
 router.get("/install", (ctx) => ctx.render("install"));
 // router.use(["/api"], verifyRequest()); //all requests with /api must be verified.
-router.use(["/webhooks"], webhookVerification); //webhook skips verifyRequest but verified with hmac
+// router.use(["/webhooks"], webhookVerification); //webhook skips verifyRequest but verified with hmac
 require("./routes/webhookRoutes")(router);
 require("./routes/customRoutes")(router);
 
