@@ -25,6 +25,12 @@ module.exports = (router) => {
       console.log("We got a webhook!");
       // console.log("Body:", ctx.request.body);
       ctx.response.status = 200;
+      // functions.checkVIP(ctx.request.body)
+    })
+    .post("/webhooks/orders/created", (ctx, next) => {
+      console.log("We got a webhook!");
+      // console.log("Body:", ctx.request.body);
+      ctx.response.status = 200;
       functions.checkVIP(ctx.request.body)
     })
     .post("/webhooks/themes/delete", (ctx, next) => {
