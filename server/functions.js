@@ -177,7 +177,7 @@ const generateVIPNumber = (email, customer_id, shop) => {
     if (err) return console.error(err);
     console.log("customer database", customer);
     const lastVIPcustomer = customer.pop()
-    addVIPcustomer(50000000, email, customer_id, shop)
+    addVIPcustomer(lastVIPcustomer.vip_number + 1, email, customer_id, shop)
   })
   // return 3
 }
