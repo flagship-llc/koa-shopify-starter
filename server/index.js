@@ -34,9 +34,6 @@ db.once('open', function() {
   console.log("connected to database")
 });
 
-
-const validateWebhook = require('./webhooks');
-
 // if total cost of all items purchased over 500HKD
 // generate new VIP number
 // get customer email
@@ -153,8 +150,6 @@ if (isDev) {
   const staticPath = path.resolve(__dirname, "../");
   app.use(mount("/", serve(staticPath)));
 }
-
-router.post('/webhooks/products/create', validateWebhook);
 
 router.get("/install", (ctx) => ctx.render("install"));
 // router.use(["/api"], verifyRequest()); //all requests with /api must be verified.

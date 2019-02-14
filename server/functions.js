@@ -199,7 +199,8 @@ module.exports = {
       let totalSpent = 0
       // test customer from the manual webhook trigger
       // only for testing, prod replace with customer.id
-      const customer_id = '1084779724900' // the id of john test in store (not from the webhook)
+      // const customer_id = '1128559870052' // the id of john test in store (not from the webhook)
+      const customer_id = customer.id
       const customerEmail = customer.email // email from the webhook
       console.log(customerEmail)
       
@@ -209,6 +210,9 @@ module.exports = {
       if (!customer.tags.includes("VIP")) { // if customer is not VIP
         // get all orders of this customer
         const getURL = `https://${shop}/admin/customers/${customer_id}/orders.json`
+        // filter by finiancial status paid 
+        // add since refunds negative 
+        // untag if less (get all tags since look like this "VIP,myTag") and take out VIP but keep rest and replace (split by comma to get just VIP)
         axios.get(getURL, axiosConfig)
         .then( (response) => { 
           let customerOrders = response.data.orders
