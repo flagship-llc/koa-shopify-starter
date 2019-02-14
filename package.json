@@ -19,6 +19,12 @@
   "license": "MIT",
   "dependencies": {
     "@koa/cors": "^2.2.3",
+    "@shopify/koa-shopify-auth": "^3.1.7",
+    "@shopify/koa-shopify-graphql-proxy": "^2.1.2",
+    "@shopify/polaris": "3.3.0",
+    "@shopify/react-effect": "^1.0.1",
+    "@shopify/react-html": "6.0.0",
+    "@shopify/react-shopify-app-route-propagator": "^1.0.13",
     "axios": "^0.18.0",
     "bcrypt": "^3.0.4",
     "cross-env": "^5.2.0",
