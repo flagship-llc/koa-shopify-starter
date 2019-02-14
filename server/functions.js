@@ -223,7 +223,7 @@ module.exports = {
             console.log(totalSpent)
           }
           // change to 5000 for prod
-          if (totalSpent > -1) { // tag the customer as VIP
+          if (totalSpent > 5000) { // tag the customer as VIP
             console.log("total spent")
             const customerVIP = {
               "customer": {
