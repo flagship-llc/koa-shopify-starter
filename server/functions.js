@@ -15,7 +15,7 @@ const deleteUpdateMetafield = async (id, customer_id, shop, totalSpent) => { // 
   await axios({ // need to wait so it deletes first
     method: 'DELETE',
     url: deleteURL,
-    headers: {'X-Shopify-Access-Token': "84e4a50103442b40ebb7b232548bd925"}
+    headers: {'X-Shopify-Access-Token': "417ef1fbb01349d7c1ea11dea7bd9847"}
   })
   .then((message) => {
     // put request to add metafield 
@@ -39,7 +39,7 @@ const deleteUpdateMetafield = async (id, customer_id, shop, totalSpent) => { // 
       metafieldData,
       {
         headers: {
-        'X-Shopify-Access-Token': "84e4a50103442b40ebb7b232548bd925",
+        'X-Shopify-Access-Token': "417ef1fbb01349d7c1ea11dea7bd9847",
         'Content-Type': 'application/json'
         }
       }
@@ -70,7 +70,7 @@ const updateMetafieldTotalSpent = async (totalSpent, customer_id, shop) => {
   const URL = `https://${shop}/admin/customers/${customer_id}/metafields.json`
   const config = {
     headers: {
-      'X-Shopify-Access-Token': "84e4a50103442b40ebb7b232548bd925",
+      'X-Shopify-Access-Token': "417ef1fbb01349d7c1ea11dea7bd9847",
     }
   }
   axios.get(URL, config)
@@ -114,7 +114,7 @@ const updateMetafieldTotalSpent = async (totalSpent, customer_id, shop) => {
           metafieldData,
           {
             headers: {
-            'X-Shopify-Access-Token': "84e4a50103442b40ebb7b232548bd925",
+            'X-Shopify-Access-Token': "417ef1fbb01349d7c1ea11dea7bd9847",
             'Content-Type': 'application/json'
             }
           }
@@ -150,7 +150,7 @@ const updateMetafieldVIP = (VIPnumber, customer_id, shop) => {
     metafieldData,
     {
       headers: {
-      'X-Shopify-Access-Token': "84e4a50103442b40ebb7b232548bd925",
+      'X-Shopify-Access-Token': "417ef1fbb01349d7c1ea11dea7bd9847",
       'Content-Type': 'application/json'
       }
     }
@@ -191,8 +191,8 @@ module.exports = {
       // customer updated webhook (listen) if not VIP -> has email -> all orders -> shop money minus discount
       const customer = res.customer
       console.log(customer)
-      const shop = "ffhk.myshopify.com"
-      const accessToken = "84e4a50103442b40ebb7b232548bd925"
+      const shop = "hkfrancfranc.myshopify.com"
+      const accessToken = "417ef1fbb01349d7c1ea11dea7bd9847"
       const axiosConfig = {
         headers: { 'X-Shopify-Access-Token': accessToken }
       };
@@ -223,7 +223,7 @@ module.exports = {
             console.log(totalSpent)
           }
           // change to 5000 for prod
-          if (totalSpent > 5000) { // tag the customer as VIP
+          if (totalSpent >= 5000) { // tag the customer as VIP
             console.log("total spent")
             const customerVIP = {
               "customer": {
