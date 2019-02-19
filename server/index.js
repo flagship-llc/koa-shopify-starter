@@ -8,6 +8,7 @@ import path from "path";
 import session from "koa-session";
 import koaWebpack from "koa-webpack";
 import bodyParser from "koa-bodyparser";
+var formidable = require('koa2-formidable'); 
 import Router from "koa-router";
 import shopifyAuth, {verifyRequest} from "@shopify/koa-shopify-auth";
 import webpack from "webpack";
@@ -105,6 +106,7 @@ app.keys = [SHOPIFY_SECRET];
 app.use(session(app));
 app.use(bodyParser());
 const router = Router();
+// app.use (formidable ({}))
 app.use(
   shopifyAuth({
     apiKey: SHOPIFY_API_KEY,

@@ -3,6 +3,7 @@ const axios = require('axios');
 const logger = require('koa-logger');
 const serve = require('koa-static');
 const koaBody = require('koa-body');
+var formidable = require('koa2-formidable'); 
 const Koa = require('koa');
 const fs = require('fs');
 const app = new Koa();
@@ -17,13 +18,6 @@ const csv = require('csvtojson')
 const functions = require('../functions');
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
-// const myPlaintextPassword = 's0/\/\P4$$w0rD';
-const someOtherPlaintextPassword = 'not_bacon';
-
-// validate number and email on server
-
-// need to make get route with VIP number parameter for group A database
-// need to make post route to populate database with csv file from front end upload (file streaming)
 
 module.exports = (router) => {
   router
@@ -74,8 +68,22 @@ module.exports = (router) => {
     // })
     .get('/checkVipNumber', async ctx => {
       // console.log(ctx.request)
-      const customerObj = await vipA.findOne({'in_store_vip_number': ctx.query.number})  
-      customerObj !== null ? ctx.response.status = 202 : ctx.response.status = 418
+      const customerObj = await vipA.findOne({'in_store_vip_number': ctx.query.number}) 
+
+      // need to make sure used online is false when I get the info
+      console.log(customerObj)
+
+      // customerObj !== null ? ctx.response.status = 202 : ctx.response.status = 418
+      if (customerObj !== null) {
+        if (!customerObj.used_online) { // not used online
+          ctx.response.status = 202
+        } else {
+          ctx.response.status = 418
+        }
+      } else {
+        ctx.response.status = 418
+      }
+
       await functions.updateUsedOnline(ctx.query.number)
       ctx.set('Access-Control-Allow-Origin', '*')
       // need to set used_online to be true
@@ -84,7 +92,7 @@ module.exports = (router) => {
       // return next()
       // ctx.body = {"test":1}
     })
-    .post('/upload', async ctx => {
+    .post('/upload', formidable ({}), async ctx => {
       console.log(ctx.request)
       const file = ctx.request.files.file;
       const reader = fs.createReadStream(file.path);
@@ -113,7 +121,7 @@ module.exports = (router) => {
 
       // })
       ctx.set('Access-Control-Allow-Origin', '*')
-      ctx.redirect('http://localhost:3006/');
+      ctx.redirect('https://ffhk-vip-lookup.herokuapp.com/');
     })
     .get('/login', async ctx => { // only uses password 
       console.log("username", ctx.query.username)
