@@ -103,8 +103,34 @@ module.exports = (router) => {
       const jsonArray = await csv().fromFile(stream.path);
       console.log("jsonArray", jsonArray)
       jsonArray.forEach(async element => {
-        console.log(element.in_store_vip_number)
-        await functions.saveSchemaA(element.in_store_vip_number)
+        // console.log(element.in_store_vip_number)
+        // check to see if it exists 
+        
+         // doesn't exist so we can add
+        // convert to string
+        // console.log("number does not exist yet")
+        let convertedNumber = element.in_store_vip_number.toString()
+        // console.log("convertedNumber", convertedNumber)
+        let convertedNumberLength = convertedNumber.length
+        // console.log("convertedNumberLength", convertedNumberLength)
+        if (convertedNumberLength < 8) { // need to add leading 0's
+          let leadingZeros = 8 - convertedNumberLength
+          // console.log("leadingZeros", leadingZeros)
+          for (let i = 0; i < leadingZeros; i++) {
+            convertedNumber = '0' + convertedNumber
+            console.log("convertedNumber to save", convertedNumber)
+          }
+        }
+        // need to check full complete number
+        let numberCheck = await vipA.findOne({'in_store_vip_number': convertedNumber})
+        if (numberCheck === null) {
+          await functions.saveSchemaA(convertedNumber)
+        }
+        // do "00" + the number and it'll make it a string 
+        // change database schema to a string 
+
+
+        
       });
       // csv()
       // .then( async (jsonObj) => {
