@@ -66,6 +66,13 @@ module.exports = (router) => {
     //   // ctx.set('Access-Control-Allow-Origin', '*')
       
     // })
+    .get('/allNumbers', async ctx => {
+      const dataObj = await vipA.find({})
+      dataObj !== null ? ctx.response.status = 202 : ctx.response.status = 418
+      ctx.body = dataObj
+      console.log(ctx.body)
+      ctx.set('Access-Control-Allow-Origin', '*')
+    })
     .get('/checkVipNumber', async ctx => {
       // console.log(ctx.request)
       const customerObj = await vipA.findOne({'in_store_vip_number': ctx.query.number}) 
