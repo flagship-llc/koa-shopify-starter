@@ -1,13 +1,16 @@
 import crypto from "crypto";
-import _ from "lodash/core";
-const querystring = require("querystring");
+import * as Koa from "koa";
+import * as _ from "lodash";
+import nullthrows from "nullthrows";
+import querystring from"querystring";
 
-module.exports = async (ctx, next) => {
+export default async (ctx: Koa.ParameterizedContext, next: Function) => {
   const queryString = ctx.request.url;
   const query = querystring.parse(queryString);
   const signature = query.signature;
   delete query["signature"];
-  var input = [];
+
+  const input: Array<string> = [];
   _.forEach(query, function(v, k) {
     if (Array.isArray(v)) {
       var value = v.join(",");
@@ -21,7 +24,7 @@ module.exports = async (ctx, next) => {
     input.push(x);
   });
   const generated_hash = crypto
-    .createHmac("sha256", process.env.SHOPIFY_SECRET)
+    .createHmac("sha256", nullthrows(process.env.SHOPIFY_SECRET))
     .update(input.sort().join(""))
     .digest("hex");
   if (signature !== generated_hash) {

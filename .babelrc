@@ -1,7 +1,14 @@
 {
   "presets": [
-    "env",
-    "react",
-    "stage-2"
+    "@babel/preset-env",
+    "@babel/typescript",
+    "@babel/preset-react"
+  ],
+  "plugins": [
+    "lodash",
+    "@babel/proposal-class-properties",
+    "@babel/proposal-object-rest-spread",
+    "babel-plugin-styled-components",
+    "@babel/plugin-transform-runtime"
   ]
 }

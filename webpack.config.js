@@ -4,27 +4,26 @@ const devMode = process.env.NODE_ENV !== "production";
 
 module.exports = {
   mode: NODE_ENV === "production" ? NODE_ENV : "development",
-  entry: ["./client/index.js"],
+  entry: ["./client/index.tsx"],
   plugins: [new MiniCssExtractPlugin({})],
+  // file extensions for webpack to look at
+  resolve: {
+    extensions: [".js", ".ts", ".tsx"],
+  },
   module: {
     rules: [
       {
-        test: /\.css$/,
-        use: [
-          devMode ? "style-loader" : MiniCssExtractPlugin.loader,
-          "css-loader",
-        ],
+        test: /\.(ts|js)x?$/,
+        exclude: /node_modules/,
+        use: {
+          loader: 'babel-loader'
+        },
       },
       {
-        test: /\.(js|jsx)$/,
-        exclude: /node_modules/,
-        use: ["babel-loader"],
-      },
+        test: /\.css$/,
+        use: ["style-loader", "css-loader"],
+      }
     ],
-  },
-  // file extensions for webpack to look at
-  resolve: {
-    extensions: ["*", ".mjs", ".js", ".jsx"],
   },
   // where webpack will output your finished bundle
   output: {
