@@ -25,25 +25,30 @@ const {
   NODE_ENV,
 } = process.env;
 
-//todo: add any database you want.
+// TODO: add any database you want.
 
-// const registerWebhook = function(shopDomain, accessToken, webhook) {
-//   const shopify = new ShopifyAPIClient({
-//     shopName: shopDomain,
-//     accessToken: accessToken,
-//   });
-//   shopify.webhook
-//     .create(webhook)
-//     .then(
-//       (response) => console.log(`webhook '${webhook.topic}' created`),
-//       (err) =>
-//         console.log(
-//           `Error creating webhook '${webhook.topic}'. ${JSON.stringify(
-//             err.response.body,
-//           )}`,
-//         ),
-//     );
-// };
+const registerWebhook = function(
+  shopDomain: string, 
+  accessToken: string, 
+  webhook: ShopifyAPIClient.ICreateWebhook,
+ ) {
+  const shopify = new ShopifyAPIClient({
+    shopName: shopDomain,
+    accessToken: accessToken,
+  });
+  shopify.webhook
+    .create(webhook)
+    .then(
+      (response) => console.log(`webhook '${webhook.topic}' created`),
+      (err) =>
+        console.log(
+          `Error creating webhook '${webhook.topic}'. ${JSON.stringify(
+            err.response.body,
+          )}`,
+        ),
+    );
+};
+
 const app = new Koa();
 const isDev = NODE_ENV !== "production";
 app.use(views(path.join(__dirname, "views"), {extension: "ejs"}));
@@ -51,33 +56,35 @@ app.keys = [nullthrows(SHOPIFY_SECRET)];
 app.use(session(app));
 app.use(bodyParser());
 const router = new Router();
-// app.use(
-//   shopifyAuth({
-//     apiKey: SHOPIFY_API_KEY,
-//     secret: SHOPIFY_SECRET,
-//     scopes: [
-//       "write_products",
-//       "read_themes",
-//       "write_themes",
-//       "read_script_tags",
-//       "write_script_tags",
-//     ],
-//     afterAuth(ctx) {
-//       const {shop, accessToken} = ctx.session;
-//       registerWebhook(shop, accessToken, {
-//         topic: "themes/create",
-//         address: `${SHOPIFY_APP_HOST}/webhooks/themes/create`,
-//         format: "json",
-//       });
-//       registerWebhook(shop, accessToken, {
-//         topic: "themes/delete",
-//         address: `${SHOPIFY_APP_HOST}/webhooks/themes/delete`,
-//         format: "json",
-//       });
-//       ctx.redirect("/");
-//     },
-//   }),
-// );
+app.use(
+  shopifyAuth({
+    prefix: '/shopify',
+    apiKey: nullthrows(SHOPIFY_API_KEY),
+    secret: nullthrows(SHOPIFY_SECRET),
+    scopes: [
+      "write_products",
+      "read_themes",
+      "write_themes",
+      "read_script_tags",
+      "write_script_tags",
+    ],
+    afterAuth(ctx: Koa.ParameterizedContext) {
+      const {shop, accessToken} = ctx.session;
+
+      // registerWebhook(shop, accessToken, {
+      //   topic: "themes/create",
+      //   address: `${SHOPIFY_APP_HOST}/webhooks/themes/create`,
+      //   format: "json",
+      // });
+      // registerWebhook(shop, accessToken, {
+      //   topic: "themes/delete",
+      //   address: `${SHOPIFY_APP_HOST}/webhooks/themes/delete`,
+      //   format: "json",
+      // });
+      ctx.redirect("/");
+    },
+  }),
+);
 
 app.use(serve(__dirname + "/public"));
 if (isDev) {
@@ -101,14 +108,14 @@ require("./routes/customRoutes")(router);
 require("./routes/helloworld")(router);
 
 app.use(router.routes()).use(router.allowedMethods());
-// app.use(
-//   verifyRequest({
-//     fallbackRoute: "/install",
-//   }),
-// );
+app.use(
+  verifyRequest({
+    fallbackRoute: "/install",
+  }),
+);
 
 // enable GraphQL fetching on client side
-app.use(proxy({version: ApiVersion.Unstable}));
+app.use(proxy({version: ApiVersion.October19}));
 app.use(async (ctx, next) => {
   await next();
   if (ctx.status === 404) {

@@ -3,15 +3,27 @@ This repository is meant as a starting boilerplate for new Flagship Shopify apps
 
 TODO: example for private app 
 
-## Local Development 
+## Initial set up (+ creating Shopify app)
 ```
+1. Download the code
 > git clone ...
 > npm install
+
+2. Set up ngrok
+> ngrok http -subdomain <PROJECT_NAME> 3000
+
+3. Create new app https://partners.shopify.com/124860/apps/new
+Add ngrok URL. For whitelist, add `<DOMAIN>/shopify/auth` and `<DOMAIN>/shopify/auth/callback`
+
+After getting the app credentials
+> cp .env.example .env
+Update `SHOPIFY_API_KEY`, `SHOPIFY_SECRET`, and `SHOPIFY_APP_HOST`
+
 > npm run dev
+
+4. go to <DOMAIN>/install to install on a development shop
 ```
 Now you can visit `http://localhost:3000/hello`, which should show `Hello world!`
-
-## Steps to create a new app
 
 ## Code explained
 
